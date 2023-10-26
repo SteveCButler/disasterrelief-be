@@ -4,6 +4,19 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.Json;
 
 var builder = WebApplication.CreateBuilder(args);
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+//ADD CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(MyAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000",
+                                "http://localhost:7287")
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+        });
+});
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -24,6 +37,9 @@ builder.Services.Configure<JsonOptions>(options =>
 
 var app = builder.Build();
 
+//Add for Cors
+app.UseCors(MyAllowSpecificOrigins);
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -33,14 +49,46 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-//GET All Users
-app.MapGet("/api/users", (DisasterReliefDbContext _context) =>
+// #### END POINTS ######
+
+//CHECK USER EXISTS
+app.MapGet("/api/checkuser/{uid}", (DisasterReliefDbContext db, string uid) =>
 {
-    return _context.Users.ToList();
+    var userExists = db.Users.Where(x => x.Uid == uid).FirstOrDefault();
+    if (userExists == null)
+    {
+        return Results.StatusCode(204);
+    }
+    return Results.Ok(userExists);
+});
+
+//GET All Users
+app.MapGet("/api/users", (DisasterReliefDbContext db) =>
+{
+    return db.Users.ToList();
 
 });
 
+//Create a User
+app.MapPost("/api/user", (DisasterReliefDbContext db, User user) =>
+{
+    db.Users.Add(user);
+    db.SaveChanges();
+    return Results.Created($"/api/user/{user.Id}", user);
+});
 
+// Delete an user
+app.MapDelete("/api/users/{userId}", (DisasterReliefDbContext db, int id) =>
+{
+    User user = db.Users.SingleOrDefault(u => u.Id == id);
+    if (user == null)
+    {
+        return Results.NotFound();
+    }
+    db.Users.Remove(user);
+    db.SaveChanges();
+    return Results.NoContent();
+});
 
 
 app.Run();
