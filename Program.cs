@@ -91,5 +91,21 @@ app.MapDelete("/api/users/{userId}", (DisasterReliefDbContext db, int id) =>
 });
 
 
+// Post Category
+app.MapPost("/api/category", (DisasterReliefDbContext db, Category category) =>
+{
+    db.Categories.Add(category);
+    db.SaveChanges();
+    return Results.Created($"/api/category)", category);
+});
+
+// Delete Category
+app.MapDelete("/api/category/{id}", (DisasterReliefDbContext db, int id) =>
+{
+    Category categoryToDelete = db.Categories.SingleOrDefault(c => c.Id == id);
+    db.Categories.Remove(categoryToDelete);
+    db.SaveChanges();
+});
+
 app.Run();
 
