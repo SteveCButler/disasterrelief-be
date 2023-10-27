@@ -91,6 +91,12 @@ app.MapDelete("/api/users/{userId}", (DisasterReliefDbContext db, int id) =>
 });
 
 
+// GET All Categories
+app.MapGet("/api/category", (DisasterReliefDbContext db) =>
+{
+    return db.Categories.ToList();
+});
+
 // Post Category
 app.MapPost("/api/category", (DisasterReliefDbContext db, Category category) =>
 {
