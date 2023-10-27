@@ -157,6 +157,7 @@ app.MapPost("/api/category", (DisasterReliefDbContext db, Category category) =>
     return Results.Created($"/api/category)", category);
 });
 
+
 // Delete Category
 app.MapDelete("/api/category/{id}", (DisasterReliefDbContext db, int id) =>
 {
