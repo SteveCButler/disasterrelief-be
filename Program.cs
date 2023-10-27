@@ -90,6 +90,58 @@ app.MapDelete("/api/users/{userId}", (DisasterReliefDbContext db, int id) =>
     return Results.NoContent();
 });
 
+// get all disasters 
+app.MapGet("/api/disaster", (DisasterReliefDbContext db) =>
+{
+    return db.Disasters.ToList();
+});
+
+// get disaster by Id
+app.MapGet("/api/disaster/{id}", (DisasterReliefDbContext db, int id) =>
+{
+    var disaster = db.Disasters.SingleOrDefaultAsync(s => s.Id == id);
+    return disaster;
+}
+);
+
+// create a disaster
+app.MapPost("api/disaster", async (DisasterReliefDbContext db, Disaster disaster) =>
+{
+    db.Disasters.Add(disaster);
+    db.SaveChanges();
+    return Results.Created($"/api/disaster{disaster.Id}", disaster);
+});
+
+// Update Disaster 
+app.MapPut("api/disaster/{id}", async (DisasterReliefDbContext db, int id, Disaster disaster) =>
+{
+    Disaster disasterToUpdate = await db.Disasters.SingleOrDefaultAsync(disaster => disaster.Id == id);
+    if (disasterToUpdate == null)
+    {
+        return Results.NotFound();
+    }
+    disasterToUpdate.Id = disaster.Id;
+    disasterToUpdate.DisasterName = disaster.DisasterName;
+    disasterToUpdate.Description = disaster.Description;
+    disasterToUpdate.Location = disaster.Location;
+    disasterToUpdate.Severity = disaster.Severity;
+    db.SaveChanges();
+    return Results.NoContent();
+});
+
+//Delete Disaster
+app.MapDelete("api/disaster/{id}", (DisasterReliefDbContext db, int id) =>
+{
+    Disaster disaster = db.Disasters.SingleOrDefault(disaster => disaster.Id == id);
+    if (disaster == null)
+    {
+        return Results.NotFound();
+    }
+    db.Disasters.Remove(disaster);
+    db.SaveChanges();
+    return Results.NoContent();
+});
+
 
 app.Run();
 
