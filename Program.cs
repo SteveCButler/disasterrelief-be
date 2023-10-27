@@ -166,5 +166,27 @@ app.MapDelete("/api/category/{id}", (DisasterReliefDbContext db, int id) =>
     db.SaveChanges();
 });
 
+// GET All Items
+app.MapGet("/api/item", (DisasterReliefDbContext db) =>
+{
+    return db.Items.ToList();
+});
+
+// Create A Item
+app.MapPost("/api/item", (DisasterReliefDbContext db, Item item) =>
+{
+    db.Items.Add(item);
+    db.SaveChanges();
+    return Results.Created($"/api/item)", item);
+});
+
+// Delete Item
+app.MapDelete("/api/item/{id}", (DisasterReliefDbContext db, int id) =>
+{
+    Item itemToDelete = db.Items.SingleOrDefault(c => c.Id == id);
+    db.Items.Remove(itemToDelete);
+    db.SaveChanges();
+});
+
 app.Run();
 
