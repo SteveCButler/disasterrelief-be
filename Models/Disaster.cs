@@ -7,6 +7,7 @@ public class Disaster
     public string? Description { get; set; }
     public string Location { get; set; }
     public int Severity { get; set; }
+    public string Image { get; set; }
 
     public ICollection<Item> Items { get; set; }
 
