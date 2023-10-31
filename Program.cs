@@ -196,12 +196,7 @@ app.MapGet("/api/item/category/{id}", (DisasterReliefDbContext db, int id) =>
     return db.Items.Where(i => i.CategoryId == id).Count();
 });
 
-//Get count by category
-app.MapGet("/api/item/counts/{category_id}", (DisasterReliefDbContext db, int id) =>
-{
-    var itemList =  db.Items.Where(i => i.CategoryId == id).ToList();
-    var count = itemList.
-});
+
 
 app.Run();
 
