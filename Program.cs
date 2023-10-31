@@ -2,6 +2,7 @@ using disasterrelief_be.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -125,6 +126,7 @@ app.MapPut("api/disaster/{id}", async (DisasterReliefDbContext db, int id, Disas
     disasterToUpdate.Description = disaster.Description;
     disasterToUpdate.Location = disaster.Location;
     disasterToUpdate.Severity = disaster.Severity;
+    disasterToUpdate.Image = disaster.Image;
     db.SaveChanges();
     return Results.NoContent();
 });
@@ -186,6 +188,19 @@ app.MapDelete("/api/item/{id}", (DisasterReliefDbContext db, int id) =>
     Item itemToDelete = db.Items.SingleOrDefault(c => c.Id == id);
     db.Items.Remove(itemToDelete);
     db.SaveChanges();
+});
+
+//Get count by category
+app.MapGet("/api/item/category/{id}", (DisasterReliefDbContext db, int id) =>
+{
+    return db.Items.Where(i => i.CategoryId == id).Count();
+});
+
+//Get count by category
+app.MapGet("/api/item/counts/{category_id}", (DisasterReliefDbContext db, int id) =>
+{
+    var itemList =  db.Items.Where(i => i.CategoryId == id).ToList();
+    var count = itemList.
 });
 
 app.Run();
