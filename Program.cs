@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -195,6 +196,26 @@ app.MapGet("/api/item/category/{id}", (DisasterReliefDbContext db, int id) =>
 {
     return db.Items.Where(i => i.CategoryId == id).Count();
 });
+
+// Get Item counts by category 
+app.MapGet("/api/item/sumbycategory/{id}", (DisasterReliefDbContext db, int id) =>
+{
+    var itemList = db.Items.Where(i => i.CategoryId == id).ToList();
+
+    var itemSum = itemList.Sum(x => x.Count);
+
+    var categoryById = db.Categories.SingleOrDefault(x => x.Id == id);
+
+    Object itemObj =
+    new  { 
+        CategoryName = categoryById.CategoryName,
+        Total = itemSum,
+    };
+    return itemObj;
+
+});
+
+
 
 
 
