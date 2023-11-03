@@ -100,7 +100,7 @@ app.MapGet("/api/disaster", (DisasterReliefDbContext db) =>
 // get disaster by Id
 app.MapGet("/api/disaster/{id}", (DisasterReliefDbContext db, int id) =>
 {
-    var disaster = db.Disasters.SingleOrDefaultAsync(s => s.Id == id);
+    var disaster = db.Disasters.Where(s => s.Id == id).Include(x => x.Items).FirstOrDefault();
     return disaster;
 }
 );
@@ -196,6 +196,32 @@ app.MapGet("/api/item/category/{id}", (DisasterReliefDbContext db, int id) =>
     return db.Items.Where(i => i.CategoryId == id).Count();
 });
 
+
+// Add item to existing disaster
+app.MapPost("/api/item/{disasterId}", (DisasterReliefDbContext db, Item newItem, int disasterId) =>
+{
+
+    var existingDisaster = db.Disasters
+        .Include(o => o.Items)
+        .FirstOrDefault(o => o.Id == disasterId);
+
+    if (existingDisaster == null)
+    {
+
+        return Results.NotFound();
+    }
+
+    // Set the order ID for the new item
+    newItem.Disasters = new List<Disaster> { existingDisaster };
+
+    db.Items.Add(newItem);
+    db.SaveChanges();
+
+    return Results.Created($"/api/item/{disasterId}", newItem);
+
+
+
+});
 
 
 app.Run();
